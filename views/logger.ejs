@@ -1,0 +1,201 @@
+<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+
+<div class="breadcrumbs">
+    <% for (let i = 0; i < breadcrumbs.length; i++) { %>
+      <% if (i === breadcrumbs.length - 1) { %>
+        <span><%= breadcrumbs[i].label %></span>
+      <% } else { %>
+        <a href="<%= breadcrumbs[i].url %>"><%= breadcrumbs[i].label %></a> >
+      <% } %>
+    <% } %>
+  </div>
+
+<h2> Logger ID: <%= data[0].IMEI %></h2>
+<div class="button-container">
+  <button class="button">Add Data</button>
+  <button class="button">Edit Data</button>
+  <button class="button">Export Data</button>
+</div>
+
+<div class="tab-buttons">
+    <button class="tab-button active" data-target="chart-tab">Chart</button>
+    <button class="tab-button" data-target="map-tab">Map</button>
+</div>
+  
+<div id="chart-tab" class="tab active">
+    <!-- Add a container element for the chart -->
+    <div class="chartContainer">
+        <div id="chartContainer">
+            <script>
+                const graphdata = JSON.parse('<%- graphdata %>'); // Parse the stringified data
+                const chart = [
+                {
+                    x: [], // Initialize the x array
+                    y: [], // Initialize the y array
+                    type: "scatter"
+                }
+                ];
+                graphdata.forEach((item) => {
+                    const date = item.date.split(' ')[0];
+                    chart[0].x.push(date); // Add item.date to the x array
+                    chart[0].y.push(parseInt(item.distance)); // Add parsed item.distance to the y array
+                });
+                const graphOptions = {filename: "date-axes", fileopt: "overwrite"};
+                Plotly.newPlot('chartContainer', chart, graphOptions);
+            </script>
+        </div>
+    </div>
+</div>
+  
+  <div id="map-tab" class="tab">
+    <!-- Map container -->
+    <div id="mapContainer"></div>
+</div>
+
+<script>
+// Add event listeners to the tab buttons
+const tabButtons = document.querySelectorAll(".tab-button");
+tabButtons.forEach((button) => {
+    button.addEventListener("click", () => {
+    // Get the target tab ID from the button's data attribute
+    const targetTab = button.getAttribute("data-target");
+
+    // Hide all tabs
+    document.querySelectorAll(".tab").forEach((tab) => {
+        tab.classList.remove("active");
+    });
+
+    // Show the target tab
+    document.getElementById(targetTab).classList.add("active");
+
+    // Update the active state of the buttons
+    tabButtons.forEach((btn) => {
+        btn.classList.remove("active");
+    });
+    button.classList.add("active");
+    });
+});
+</script>
+
+
+
+
+<title>Data Table</title>
+<div class="table">
+    <style>
+    table {
+        margin-top: 100px;
+        width: 980px;
+        text-align: center;
+        border-collapse: collapse;
+        background-color: #ffffff;
+        border-radius: 5px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+    th, td {
+        padding: 10px;
+        border-bottom: 1px solid #ddd;
+    }
+    th {
+        background-color: #f5f5f5;
+    }
+    .center {
+        text-align: center;
+    }
+    .long-column {
+      width: 400px;
+    }
+    </style>
+    <table class="center">
+    <thead>
+        <tr>
+        <th class="long-column">Date</th>
+        <th>Signal Strength</th>
+        <th>Battery (volts)</th>
+        <th>Distance (mm)</th>
+        </tr>
+    </thead>
+    <tbody>
+        <% data.forEach((item) => { %>
+          <tr>
+            <td><%= item.date %></td>
+            <td><%= item.signal %></td>
+            <td><%= item.battery %></td>
+            <td><%= item.distance %></td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+</div>
+
+<div class="chartContainer">
+    <div id="tableContainer">
+        <script>
+            var values = [
+                ['Salaries', 'Office', 'Merchandise', 'Legal', '<b>TOTAL</b>'],
+                [1200000, 20000, 80000, 2000, 12120000],
+                [1300000, 20000, 70000, 2000, 130902000],
+                [1300000, 20000, 120000, 2000, 131222000],
+                [1400000, 20000, 90000, 2000, 14102000]]
+
+            var data = [{
+            type: 'table',
+            header: {
+                values: [["<b>EXPENSES</b>"], ["<b>Q1</b>"],
+                            ["<b>Q2</b>"], ["<b>Q3</b>"], ["<b>Q4</b>"]],
+                align: "center",
+                line: {width: 1, color: 'black'},
+                fill: {color: "grey"},
+                font: {family: "Arial", size: 12, color: "white"}
+            },
+            cells: {
+                values: values,
+                align: "center",
+                line: {color: "black", width: 1},
+                font: {family: "Arial", size: 11, color: ["black"]}
+            }
+            }]
+            Plotly.newPlot('tableContainer', data);
+        </script>
+    </div>
+</div>
+
+
+<div class="chartContainer">
+    <div id="mapContainer">
+        <script>
+            var data = [{
+                type:'scattermapbox',
+                lat:['45.5017'],
+                lon:['-73.5673'],
+                mode:'markers',
+                marker: {
+                size:14
+                },
+                text:['Montreal']
+            }]
+            
+            var layout = {
+                autosize: true,
+                hovermode:'closest',
+                mapbox: {
+                bearing:0,
+                center: {
+                    lat:45,
+                    lon:-73
+                },
+                pitch:0,
+                zoom:5
+                },
+            }
+            
+            Plotly.setPlotConfig({
+                mapboxAccessToken: "your access token"
+            })
+            
+            Plotly.newPlot('mapContainer', data, layout)
+        </script>
+    </div>
+</div>
+
+
